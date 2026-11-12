@@ -1,0 +1,70 @@
+from datetime import date
+
+# --- 1. День недели, на который пришлась дата рождения ---
+def day_of_week(day: int, month: int, year: int) -> str:
+    days = ["понедельник", "вторник", "среда", "четверг",
+            "пятница", "суббота", "воскресенье"]
+    return days[date(year, month, day).weekday()]
+
+# --- 2. Проверка на високосный год ---
+def is_leap(year: int) -> bool:
+    return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
+# --- 3. Полный возраст в годах ---
+def age_years(day: int, month: int, year: int) -> int:
+    today = date.today()
+    age = today.year - year
+    # день рождения ещё не наступил в этом году
+    if (today.month, today.day) < (month, day):
+        age -= 1
+    return age
+
+# --- 4. Цифры «электронного табло» (каждая — 5 строк) ---
+DIGITS = {
+    '0': ["***", "* *", "* *", "* *", "***"],
+    '1': ["  *", "  *", "  *", "  *", "  *"],
+    '2': ["***", "  *", "***", "*  ", "***"],
+    '3': ["***", "  *", "***", "  *", "***"],
+    '4': ["* *", "* *", "***", "  *", "  *"],
+    '5': ["***", "*  ", "***", "  *", "***"],
+    '6': ["***", "*  ", "***", "* *", "***"],
+    '7': ["***", "  *", "  *", "  *", "  *"],
+    '8': ["***", "* *", "***", "* *", "***"],
+    '9': ["***", "* *", "***", "  *", "***"],
+}
+
+# --- 5. Отрисовка даты в формате дд мм гггг звёздочками ---
+def render_date(d: int, m: int, y: int) -> str:
+    text = f"{d:02d} {m:02d} {y:04d}"
+    rows = [""] * 5
+    for i, ch in enumerate(text):
+        glyph = ["   "] * 5 if ch == " " else DIGITS[ch]
+        gap = "     " if ch == " " else " "   # между группами — двойной пробел
+        for r in range(5):
+            rows[r] += glyph[r] + gap
+    return "\n".join(row.rstrip() for row in rows)
+
+# --- Главная программа ---
+def main():
+    day = int(input("Введите день вашего рождения (1-31): "))
+    month = int(input("Введите месяц (1-12): "))
+    year = int(input("Введите год (например, 1995): "))
+
+    if not 1 <= month <= 12:
+        print("Ошибка: месяц должен быть от 1 до 12.")
+        return
+    try:
+        date(year, month, day)
+    except ValueError:
+        print("Ошибка: такой даты не существует.")
+        return
+
+    print(f"\nВы родились: {day_of_week(day, month, year)}.")
+    leap = is_leap(year)
+    print(f"Год {year} — {'високосный' if leap else 'невисокосный'}.")
+    print(f"Сейчас вам {age_years(day, month, year)}.\n")
+    print("Ваша дата рождения на табло:\n")
+    print(render_date(day, month, year))
+
+if __name__ == "__main__":
+    main()
